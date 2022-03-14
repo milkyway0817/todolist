@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>todList</title>
+  <link rel="stylesheet" href="./index.css">
+</head>
+
+<body>
+  <input class="input" type="text" id="input" />
+  <button class="add" id="add">添加</button>
+  <input type="checkbox" />全部
+
+  <div class="list" id="list"></div>
+  <span>已完成<span id="items" class="items">0</span>条</span>
+  <div class="status">
+    <input class="" type="radio" name="status" checked />全部
+    <input class="" type="radio" name="status" />未完成
+    <input class="" type="radio" name="status" />已完成
+  </div>
+</body>
+<script>
+  /***
+   * 任务要求
+   * 1.可以创建 1 个代办项。
+   * 2.可以删除 1 个代办项。
+   * 3.可以修改 1 个代办项的名称。
+   * 4.可以同时修改全部代办项的完成状态。
+   * 5.可以以全部、未完成、已完成筛选所有代办项。
+   * 6.需要展示未完成的代办项的数目。
+   * 
+   * */
+  var input = document.getElementById('input');
+  var add = document.getElementById('add');
+  var list = document.getElementById('list');
+  var items = document.getElementById('items');
+  let listArr = [];
+  add.onclick = function () {
+    list.innerHTML = ""
+    listArr.push({
+      status: false,
+      value: input.value
+    })
+    changeFun()
+  }
+
+  function changeFun() {
+    let todoString = "";
+    if (listArr?.length > 0) {
+
+      listArr.map((v, i) => {
+        if (!v.status) {
+          todoString += "<li>"
+            + "<input type='checkbox'  onchange='check(" + i + "," + v.status + ")'>"
+            + "<span id='p-" + i + "' onclick='edit(" + i + ")'>" + v.value + "</span>" +
+            "<span onclick='remove(" + i + ")'>删除</span>" +
+            "</li>";
+          list.innerHTML = todoString;
+
+        } else {
+          todoString += "<li>"
+            + "<input type='checkbox' checked onchange='check(" + i + "," + v.status + ")'>"
+            + "<span id='p-" + i + "' onclick='edit(" + i + ")'>" + v.value + "</span>" +
+            "<span onclick='remove(" + i + ")'>删除</span>" +
+            "</li>";
+          list.innerHTML = todoString;
+        }
+
+      })
+    } else {
+      list.innerHTML = "";
+    }
+
+  }
+  function check(index, status) {
+    listArr[index].status = !status;
+    changeFun()
+    let countArr = (arr, value) => arr.reduce((a, v) => v.status === value ? a + 1 : a + 0, 0);
+    items.innerHTML = countArr(listArr, true)
+  }
+  function edit(i) {
+    console.log(i)
+  }
+  function remove(i) {
+    listArr.splice(i, 1)
+    changeFun()
+  }
+
+  console.log(input.value)
+
+</script>
+
+</html>
