@@ -12,14 +12,14 @@
 <body>
   <input class="input" type="text" id="input" />
   <button class="add" id="add">添加</button>
-  <input type="checkbox" />全部
+  <input type="checkbox" id="allChecked">全部
 
   <div class="list" id="list"></div>
-  <span>已完成<span id="items" class="items">0</span>条</span>
+  <span>当前未完成<span id="items" class="items">0</span>条</span>
   <div class="status">
-    <input class="" type="radio" name="status" checked />全部
-    <input class="" type="radio" name="status" />未完成
-    <input class="" type="radio" name="status" />已完成
+    <input type="radio" name="status" checked id="all">全部
+    <input type="radio" name="status" id="unComplete">未完成
+    <input type="radio" name="status" id="complete">已完成
   </div>
 </body>
 <script>
@@ -31,12 +31,18 @@
    * 4.可以同时修改全部代办项的完成状态。
    * 5.可以以全部、未完成、已完成筛选所有代办项。
    * 6.需要展示未完成的代办项的数目。
-   * 
    * */
-  var input = document.getElementById('input');
-  var add = document.getElementById('add');
-  var list = document.getElementById('list');
-  var items = document.getElementById('items');
+  var input = document.getElementById('input'); // 获取输入框
+  var add = document.getElementById('add'); // 获取添加按钮
+  var list = document.getElementById('list'); // 获取list列表
+  var items = document.getElementById('items'); // 获取每个项
+  var allChecked = document.getElementById('allChecked'); // 获取全部改变状态按钮
+  var status = document.getElementById('status'); // 获取可选择状态按钮
+  var all = document.getElementById('all'); // 获取全部状态按钮
+  var unComplete = document.getElementById('unComplete'); // 获取未完成状态按钮
+  var complete = document.getElementById('complete'); // 获取已完成状态按钮
+  var allStatus = false; // 当前全选状态
+
   let listArr = [];
   add.onclick = function () {
     list.innerHTML = ""
@@ -45,26 +51,27 @@
       value: input.value
     })
     changeFun()
+    unfinished()
   }
 
-  function changeFun() {
+  function changeFun(newList) {
+    const arr = !!newList ? newList : listArr
     let todoString = "";
-    if (listArr?.length > 0) {
-
-      listArr.map((v, i) => {
+    if (arr?.length > 0) {
+      arr.map((v, i) => {
         if (!v.status) {
           todoString += "<li>"
             + "<input type='checkbox'  onchange='check(" + i + "," + v.status + ")'>"
-            + "<span id='p-" + i + "' onclick='edit(" + i + ")'>" + v.value + "</span>" +
-            "<span onclick='remove(" + i + ")'>删除</span>" +
+            + "<input type='text' value=" + v.value + " style='border: 0px' onblur='edit(" + i + ", false, this)' > "
+            + "<span onclick='remove(" + i + ")'>删除</span>" +
             "</li>";
           list.innerHTML = todoString;
 
         } else {
           todoString += "<li>"
             + "<input type='checkbox' checked onchange='check(" + i + "," + v.status + ")'>"
-            + "<span id='p-" + i + "' onclick='edit(" + i + ")'>" + v.value + "</span>" +
-            "<span onclick='remove(" + i + ")'>删除</span>" +
+            + "<input type='text' value=" + v.value + " style='border: 0px' onblur='edit(" + i + ", false, this)' > "
+            + "<span onclick='remove(" + i + ")'>删除</span>" +
             "</li>";
           list.innerHTML = todoString;
         }
@@ -75,22 +82,51 @@
     }
 
   }
+  // 状态发生改变
   function check(index, status) {
     listArr[index].status = !status;
+    unfinished()
     changeFun()
-    let countArr = (arr, value) => arr.reduce((a, v) => v.status === value ? a + 1 : a + 0, 0);
-    items.innerHTML = countArr(listArr, true)
   }
-  function edit(i) {
-    console.log(i)
+  // 编辑
+  function edit(index, h, e) {
+    listArr[index].value = e.value;
+    changeFun()
   }
+  // 移除事件
   function remove(i) {
     listArr.splice(i, 1)
+    unfinished()
     changeFun()
   }
-
-  console.log(input.value)
-
+  // 统计未完成数量
+  function unfinished() {
+    let countArr = (arr, value) => arr.reduce((a, v) => v.status === value ? a + 1 : a + 0, 0);
+    items.innerHTML = countArr(listArr, false)
+  }
+  // 点击全部完成
+  allChecked.onclick = function () {
+    allStatus = !allStatus
+    listArr?.map((item) => {
+      item.status = allStatus
+    })
+    changeFun()
+    unfinished()
+  }
+  // 所有状态
+  all.onclick = function () {
+    changeFun()
+  }
+  // 未完成状态
+  unComplete.onclick = function () {
+    let newList = listArr.filter(v => v.status === false)
+    changeFun(newList)
+  }
+  // 已完成状态
+  complete.onclick = function () {
+    let newList = listArr.filter(v => v.status === true)
+    changeFun(newList)
+  }
 </script>
 
 </html>
